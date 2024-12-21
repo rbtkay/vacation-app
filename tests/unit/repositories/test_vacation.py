@@ -22,7 +22,11 @@ class TestVacationRepository:
         assert vacation == None
 
     def test_create_vacation_success(self, session):
-        employee = EmployeeRepository.get(session)
+        employee = EmployeeRepository.create(
+            session,
+            first_name='john',
+            last_name='doe',
+        )
 
         new_vacation = VacationRepository.create(
             session,
@@ -37,7 +41,11 @@ class TestVacationRepository:
         assert new_vacation.employee == employee
     
     def test_update_vacation_success(self, session):
-        employee = EmployeeRepository.get(session)
+        employee = EmployeeRepository.create(
+            session,
+            first_name='john',
+            last_name='doe',
+        )
 
         new_vacation = VacationRepository.create(
             session,
@@ -66,7 +74,11 @@ class TestVacationRepository:
         assert result == 0
 
     def test_delete_vacation_success(self, session):
-        employee = EmployeeRepository.get(session)
+        employee = EmployeeRepository.create(
+            session,
+            first_name='john',
+            last_name='doe',
+        )
 
         new_vacation = VacationRepository.create(
             session,
@@ -83,7 +95,12 @@ class TestVacationRepository:
     def test_merge_when_start_date_mathches(self, session):
         today = date(2025, 1, 1)
         
-        employee = EmployeeRepository.get(session)
+        employee = EmployeeRepository.create(
+            session,
+            first_name='john',
+            last_name='doe',
+        )
+        
         vacation = VacationRepository.create(
             session,
             start_date=today,
@@ -110,7 +127,12 @@ class TestVacationRepository:
     def test_merge_when_end_date_mathches(self, session):
         today = date(3000, 1, 1)
         
-        employee = EmployeeRepository.get(session)
+        employee = EmployeeRepository.create(
+            session,
+            first_name='john',
+            last_name='doe',
+        )
+
         vacation = VacationRepository.create(
             session,
             start_date=today,
@@ -137,7 +159,12 @@ class TestVacationRepository:
     def test_replace_when_all_dates_mathches(self, session):
         today = date(4000, 1, 1)
         
-        employee = EmployeeRepository.get(session)
+        employee = EmployeeRepository.create(
+            session,
+            first_name='john',
+            last_name='doe',
+        )
+        
         vacation = VacationRepository.create(
             session,
             start_date=today,
@@ -164,7 +191,12 @@ class TestVacationRepository:
     def test_does_not_merge_if_not_match(self, session):
         today = date(5000, 1, 1)
         
-        employee = EmployeeRepository.get(session)
+        employee = EmployeeRepository.create(
+            session,
+            first_name='john',
+            last_name='doe',
+        )
+        
         vacation = VacationRepository.create(
             session,
             start_date=today,
@@ -185,7 +217,25 @@ class TestVacationRepository:
         assert result == 0
     
     def test_get_many_success(self, session):
-        employee = EmployeeRepository.get(session)
+        employee = EmployeeRepository.create(
+            session,
+            first_name='john',
+            last_name='doe',
+        )
+
+        today = date(5000, 6, 1)
+        vacation = VacationRepository.create(
+            session,
+            start_date=today,
+            end_date=today + timedelta(days=10),
+            employee=employee,
+        )
+        vacation = VacationRepository.create(
+            session,
+            start_date=today + timedelta(days=15),
+            end_date=today + timedelta(days=20),
+            employee=employee,
+        )
         vacations = VacationRepository.get_many(session, employee_id=employee.id)
         
         assert len(vacations) > 0
