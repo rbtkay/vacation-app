@@ -14,6 +14,10 @@ down:
 build:
 	docker compose -f docker-compose.yml build
 
+.PHONY: test
+test:
+	poetry run pytest ./tests
+
 # DB
 .PHONY: create-db
 create-db:
