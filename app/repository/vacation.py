@@ -21,8 +21,22 @@ class _VacationRepository(BaseRepository):
         return self._query(
             session,
             id=vacation_id,
-        ).update({"start_date": start_date, "end_date": end_date, })
+        ).update({"start_date": start_date, "end_date": end_date})
     
+    def merge(self, session, employee_id, start_date, end_date) -> int:
+        statement = self._query(
+            session,
+            employee_id=employee_id,
+        )
+        result = statement.filter(
+            self.model.start_date > start_date
+        ).filter(self.model.start_date <= end_date).update({"start_date": start_date})
+        
+        result += statement.filter(
+            self.model.end_date >= start_date
+        ).filter(self.model.end_date < end_date).update({"end_date": end_date})
+
+        return result
 
     def delete(self, session, vacation_id) -> int:
         return self._query(session, id=vacation_id).delete()

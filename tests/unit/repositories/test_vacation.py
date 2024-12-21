@@ -1,4 +1,5 @@
 import uuid
+
 from datetime import date
 from datetime import timedelta
 
@@ -8,7 +9,7 @@ from app.repository.employee import EmployeeRepository
 
 class TestVacationRepository:
     def setup_method(self):
-        today = date.today()
+        today = date(2024, 1, 1)
         self.start_date = today
         self.end_date = self.start_date + timedelta(days=3)
 
@@ -78,4 +79,107 @@ class TestVacationRepository:
         
         vacation = VacationRepository.get_by_id(session, new_vacation.id)
         assert vacation is None
+    
+    def test_merge_when_start_date_mathches(self, session):
+        today = date(2025, 1, 1)
+        
+        employee = EmployeeRepository.get(session)
+        vacation = VacationRepository.create(
+            session,
+            start_date=today,
+            end_date=today + timedelta(days=10),
+            employee=employee,
+        )
 
+        new_start_date = vacation.start_date - timedelta(days=5)
+        new_end_date = vacation.start_date + timedelta(days=5)
+        
+        result = VacationRepository.merge(
+            session,
+            employee_id=vacation.employee.id,
+            start_date=new_start_date,
+            end_date=new_end_date,
+        )
+
+        assert result == 1
+        
+        updated_vacation = VacationRepository.get_by_id(session, vacation_id=vacation.id)
+        assert updated_vacation.start_date == new_start_date
+        assert updated_vacation.end_date == vacation.end_date
+
+    def test_merge_when_end_date_mathches(self, session):
+        today = date(3000, 1, 1)
+        
+        employee = EmployeeRepository.get(session)
+        vacation = VacationRepository.create(
+            session,
+            start_date=today,
+            end_date=today + timedelta(days=10),
+            employee=employee,
+        )
+
+        new_start_date = vacation.start_date + timedelta(days=5)
+        new_end_date = new_start_date + timedelta(days=10)
+        
+        result = VacationRepository.merge(
+            session,
+            employee_id=vacation.employee.id,
+            start_date=new_start_date,
+            end_date=new_end_date,
+        )
+
+        assert result == 1
+        
+        updated_vacation = VacationRepository.get_by_id(session, vacation_id=vacation.id)
+        assert updated_vacation.start_date == vacation.start_date
+        assert updated_vacation.end_date == new_end_date
+
+    def test_replace_when_all_dates_mathches(self, session):
+        today = date(4000, 1, 1)
+        
+        employee = EmployeeRepository.get(session)
+        vacation = VacationRepository.create(
+            session,
+            start_date=today,
+            end_date=today + timedelta(days=10),
+            employee=employee,
+        )
+
+        new_start_date = vacation.start_date - timedelta(days=10)
+        new_end_date = vacation.end_date + timedelta(days=10)
+        
+        result = VacationRepository.merge(
+            session,
+            employee_id=vacation.employee.id,
+            start_date=new_start_date,
+            end_date=new_end_date,
+        )
+
+        assert result == 2
+        
+        updated_vacation = VacationRepository.get_by_id(session, vacation_id=vacation.id)
+        assert updated_vacation.start_date == new_start_date
+        assert updated_vacation.end_date == new_end_date
+    
+    def test_does_not_merge_if_not_match(self, session):
+        today = date(5000, 1, 1)
+        
+        employee = EmployeeRepository.get(session)
+        vacation = VacationRepository.create(
+            session,
+            start_date=today,
+            end_date=today + timedelta(days=10),
+            employee=employee,
+        )
+
+        new_start_date = vacation.end_date + timedelta(days=10)
+        new_end_date = new_start_date + timedelta(days=10)
+        
+        result = VacationRepository.merge(
+            session,
+            employee_id=vacation.employee.id,
+            start_date=new_start_date,
+            end_date=new_end_date,
+        )
+
+        assert result == 0
