@@ -183,3 +183,16 @@ class TestVacationRepository:
         )
 
         assert result == 0
+    
+    def test_get_many_success(self, session):
+        employee = EmployeeRepository.get(session)
+        vacations = VacationRepository.get_many(session, employee_id=employee.id)
+        
+        assert len(vacations) > 0
+        for vacation in vacations:
+            assert vacation.employee_id == employee.id
+        
+    def test_get_many_returns_empty_list(self, session):
+        vacations = VacationRepository.get_many(session, employee_id=uuid.uuid4())
+        
+        assert vacations == []
