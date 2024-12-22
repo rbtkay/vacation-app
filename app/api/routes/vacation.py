@@ -39,13 +39,17 @@ def create_vacation(payload: VacationCreatePayload, session: Session = Depends(g
             detail=f"Employee with id {payload.employee_id} does not exist"
         )
 
-    if VacationRepository.merge(session, employee.id, payload.start_date, payload.end_date) <= 0:
-        VacationRepository.create(
-            session,
-            payload.start_date,
-            payload.end_date,
-            employee=employee,
-        )
+    if VacationRepository.merge(session, employee.id, payload.start_date, payload.end_date, payload.vacation_type) <= 0:
+        try:
+            VacationRepository.create(
+                session,
+                start_date=payload.start_date,
+                end_date=payload.end_date,
+                employee=employee,
+                vacation_type=payload.vacation_type,
+            )
+        except ValueError as ex:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ex))
 
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
@@ -62,6 +66,7 @@ def update_vacation(vacation_id: UUID, payload: VacationPayloadBase, session: Se
         vacation_id,
         payload.start_date,
         payload.end_date,
+        payload.vacation_type
     )
     if result <= 0:
         raise HTTPException(
