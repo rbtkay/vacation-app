@@ -40,6 +40,8 @@ def get_vacations(session: Session = Depends(get_db), *, employee_id: UUID):
 
 @router.get("/{employee_id}", response_model=Optional[EmployeeBase])
 def get_employee(session: Session = Depends(get_db), *, employee_id: UUID):
+
+    breakpoint()
     return EmployeeRepository.get(session=session, id=employee_id)
 
 
@@ -50,15 +52,10 @@ def get_employees(session: Session = Depends(get_db)):
 
 @router.post("/")
 def create_employee(payload: EmployeeBase, session: Session = Depends(get_db)):
+
+    breakpoint()
     return EmployeeRepository.create(
         session=session,
         first_name=payload.first_name,
         last_name=payload.last_name,
     )
-
-    # EmployeeRepository.get_in_vacation(
-    #     session, 
-    #     first_name, 
-    #     last_name, 
-    #     requested_date,
-    # )

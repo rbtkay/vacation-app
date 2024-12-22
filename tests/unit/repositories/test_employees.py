@@ -53,9 +53,11 @@ class TestEmployeeRepository:
         end_date_4 = start_date_4 + timedelta(days=10)
         VacationRepository.create(session, start_date_4, end_date_4, employee_2)
         
+        date_requested = date(2000, 1, 8)
         employees_in_vacation = EmployeeRepository.get_in_vacation(
             session,
             first_name='john',
+            requested_date=date_requested,
         )
 
         assert len(employees_in_vacation) == 1
@@ -63,24 +65,15 @@ class TestEmployeeRepository:
 
         employees_in_vacation = EmployeeRepository.get_in_vacation(
             session,
-            last_name='doe',
+            first_name='jane',
+            requested_date=date_requested,
         )
 
-        assert len(employees_in_vacation) == 2
-
-        date_requested = date(2000, 1, 8)
-        employees_in_vacation = EmployeeRepository.get_in_vacation(
-            session,
-            last_name='doe',
-            requested_date=date_requested
-        )
-        assert len(employees_in_vacation) == 2
-
-        date_requested = date(2000, 1, 3)
-        employees_in_vacation = EmployeeRepository.get_in_vacation(
-            session,
-            last_name='doe',
-            requested_date=date_requested
-        )
         assert len(employees_in_vacation) == 1
+
+        employees_in_vacation = EmployeeRepository.get_in_vacation(
+            session,
+            requested_date=date_requested
+        )
+        assert len(employees_in_vacation) == 2
         assert employees_in_vacation[0].id == employee_1.id

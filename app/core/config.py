@@ -1,3 +1,4 @@
+import os
 from typing import Any, Optional, Union
 from pydantic import (
     field_validator,
@@ -6,6 +7,16 @@ from pydantic import (
 )
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class TestSettings(BaseSettings):
+    PROJECT_NAME: str = "technical-test"
+    VERSION: str = "0.2.0"
+    POSTGRES_SERVER: str = ''
+    POSTGRES_USER: str = ''
+    POSTGRES_PASSWORD: str = ''
+    POSTGRES_DB: str = ''
+    SQLALCHEMY_DATABASE_URI: Union[Optional[PostgresDsn], Optional[str]] = None
 
 
 class Settings(BaseSettings):
@@ -34,4 +45,4 @@ class Settings(BaseSettings):
         )
 
 
-settings = Settings()
+settings = TestSettings() if os.environ.get("TESTING") else Settings()

@@ -38,6 +38,12 @@ def create_vacation(payload: VacationPayload, session: Session = Depends(get_db)
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Employee with id {payload.employee_id} does not exist"
         )
+
+    if payload.start_date > payload.end_date:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"the 'start date' should be before the 'end date'"
+        )
     
     if VacationRepository.merge(session, employee.id, payload.start_date, payload.end_date) <= 0:
         VacationRepository.create(
