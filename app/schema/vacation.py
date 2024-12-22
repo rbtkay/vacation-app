@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 from datetime import date
-from app.schema import EmployeeBase
+from app.schema import EmployeeGetSchema
 from uuid import UUID
 
 
@@ -11,7 +11,7 @@ class VacationBase(BaseModel):
     start_date: date
     end_date: date
 
-    employee: EmployeeBase
+    employee: EmployeeGetSchema
 
 
 
