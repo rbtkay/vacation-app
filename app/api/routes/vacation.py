@@ -24,7 +24,7 @@ router = APIRouter()
 def get_vacation(session: Session = Depends(get_db), *, vacation_id: UUID):
     vacation = VacationRepository.get(session=session, id=vacation_id)
     if vacation is None:
-        raise HTTPException(status_code=404, detail="Vacation not found")
+        raise HTTPException(status_code=404, detail=f"Vacation with id {vacation_id} not found")
     
     return vacation
 

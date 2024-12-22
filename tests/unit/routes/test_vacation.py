@@ -1,10 +1,7 @@
 import uuid
-from tests.factories import EmployeeFactory
 from tests.factories import VacationFactory
-from app.repository.vacation import VacationRepository
 
 from datetime import date
-from datetime import timedelta
 
 
 class TestVacationGetEndpoint:
@@ -98,3 +95,14 @@ class TestVacationPatchEndpoints:
 
         response = client.patch(f"/vacation/{vacation.id}", json=payload)
         assert response.status_code == 422
+
+class TestVacationDeleteEndpoints:
+    def test_delete_nominal(self, client, session):
+        vacation = VacationFactory(session).create()
+
+        response = client.delete(f"/vacation/{vacation.id}")
+        assert response.status_code == 204
+    
+    def test_idempotent(self, client, session):
+        response = client.delete(f"/vacation/{uuid.uuid4()}")
+        assert response.status_code == 204

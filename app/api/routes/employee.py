@@ -20,7 +20,7 @@ from app.schema import VacationBase
 router = APIRouter()
 
 
-@router.get("/off/{requested_date}", response_model=Optional[list[EmployeeBase]])
+@router.get("/off/{requested_date}", response_model=Optional[list[EmployeeGetSchema]])
 def get_employees_in_vacation(
     requested_date: str,
     session: Session = Depends(get_db),
