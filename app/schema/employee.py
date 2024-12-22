@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict
+from uuid import UUID
 
 
 class EmployeeBase(BaseModel):
@@ -6,3 +7,6 @@ class EmployeeBase(BaseModel):
 
     first_name: str
     last_name: str
+
+class EmployeeGetSchema(EmployeeBase):
+    id: UUID

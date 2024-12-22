@@ -16,7 +16,7 @@ build:
 
 .PHONY: test
 test:
-	poetry run pytest ./tests
+	TESTING=true poetry run pytest ./tests
 
 # DB
 .PHONY: create-db
