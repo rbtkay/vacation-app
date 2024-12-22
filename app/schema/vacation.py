@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 from datetime import date
 from app.schema import EmployeeBase
 from uuid import UUID
@@ -15,12 +15,11 @@ class VacationBase(BaseModel):
 
 
 
-class VacationPayload(BaseModel):
+class VacationPayloadBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     start_date: str
     end_date: str
-    employee_id: UUID
 
     @field_validator("start_date")
     def validate_start_date(cls, value):
@@ -30,7 +29,6 @@ class VacationPayload(BaseModel):
         except ValueError:
             raise ValueError("Invalid date format, must be YYYY-MM-DD")
 
-
     @field_validator("end_date")
     def validate_end_date(cls, value):
         try:
@@ -38,5 +36,12 @@ class VacationPayload(BaseModel):
         except ValueError:
             raise ValueError("Invalid date format, must be YYYY-MM-DD")
 
-class VacationUpdatePayload(VacationPayload):
-    id: UUID
+    @model_validator(mode="after")
+    def validate_date_range(self):
+        if self.start_date >= self.end_date:
+            raise ValueError("start_date must be before end_date")
+        return self
+
+
+class VacationCreatePayload(VacationPayloadBase):
+    employee_id: UUID

@@ -4,8 +4,9 @@ from datetime import date
 from datetime import timedelta
 
 from app.repository.vacation import VacationRepository
-from app.repository.employee import EmployeeRepository
 
+from tests.factories import EmployeeFactory
+from tests.factories import VacationFactory
 
 class TestVacationRepository:
     def setup_method(self):
@@ -22,8 +23,7 @@ class TestVacationRepository:
         assert vacation == None
 
     def test_create_vacation_success(self, session):
-        employee = EmployeeRepository.create(
-            session,
+        employee = EmployeeFactory(session).create(
             first_name='john',
             last_name='doe',
         )
@@ -41,22 +41,16 @@ class TestVacationRepository:
         assert new_vacation.employee == employee
     
     def test_update_vacation_success(self, session):
-        employee = EmployeeRepository.create(
-            session,
+        employee = EmployeeFactory(session).create(
             first_name='john',
             last_name='doe',
         )
 
-        new_vacation = VacationRepository.create(
-            session,
+        new_vacation = VacationFactory(session).create(
             start_date=self.start_date,
             end_date=self.end_date,
             employee=employee
         )
-        assert new_vacation.id == new_vacation.id
-        assert new_vacation.start_date == self.start_date
-        assert new_vacation.end_date == self.end_date
-        assert new_vacation.employee == employee
 
         result = VacationRepository.update(session, new_vacation.id, self.start_date_later, self.end_date_later)
         assert result == 1
@@ -74,14 +68,12 @@ class TestVacationRepository:
         assert result == 0
 
     def test_delete_vacation_success(self, session):
-        employee = EmployeeRepository.create(
-            session,
+        employee = EmployeeFactory(session).create(
             first_name='john',
             last_name='doe',
         )
 
-        new_vacation = VacationRepository.create(
-            session,
+        new_vacation = VacationFactory(session).create(
             start_date=self.start_date,
             end_date=self.end_date,
             employee=employee
@@ -95,14 +87,12 @@ class TestVacationRepository:
     def test_merge_when_start_date_mathches(self, session):
         today = date(2025, 1, 1)
         
-        employee = EmployeeRepository.create(
-            session,
+        employee = EmployeeFactory(session).create(
             first_name='john',
             last_name='doe',
         )
         
-        vacation = VacationRepository.create(
-            session,
+        vacation = VacationFactory(session).create(
             start_date=today,
             end_date=today + timedelta(days=10),
             employee=employee,
@@ -127,8 +117,7 @@ class TestVacationRepository:
     def test_merge_when_end_date_mathches(self, session):
         today = date(3000, 1, 1)
         
-        employee = EmployeeRepository.create(
-            session,
+        employee = EmployeeFactory(session).create(
             first_name='john',
             last_name='doe',
         )
@@ -159,14 +148,12 @@ class TestVacationRepository:
     def test_replace_when_all_dates_mathches(self, session):
         today = date(4000, 1, 1)
         
-        employee = EmployeeRepository.create(
-            session,
+        employee = EmployeeFactory(session).create(
             first_name='john',
             last_name='doe',
         )
         
-        vacation = VacationRepository.create(
-            session,
+        vacation = VacationFactory(session).create(
             start_date=today,
             end_date=today + timedelta(days=10),
             employee=employee,
@@ -191,14 +178,12 @@ class TestVacationRepository:
     def test_does_not_merge_if_not_match(self, session):
         today = date(5000, 1, 1)
         
-        employee = EmployeeRepository.create(
-            session,
+        employee = EmployeeFactory(session).create(
             first_name='john',
             last_name='doe',
         )
         
-        vacation = VacationRepository.create(
-            session,
+        vacation = VacationFactory(session).create(
             start_date=today,
             end_date=today + timedelta(days=10),
             employee=employee,
@@ -217,21 +202,18 @@ class TestVacationRepository:
         assert result == 0
     
     def test_get_many_success(self, session):
-        employee = EmployeeRepository.create(
-            session,
+        employee = EmployeeFactory(session).create(
             first_name='john',
             last_name='doe',
         )
 
         today = date(5000, 6, 1)
-        vacation = VacationRepository.create(
-            session,
+        vacation = VacationFactory(session).create(
             start_date=today,
             end_date=today + timedelta(days=10),
             employee=employee,
         )
-        vacation = VacationRepository.create(
-            session,
+        vacation = VacationFactory(session).create(
             start_date=today + timedelta(days=15),
             end_date=today + timedelta(days=20),
             employee=employee,

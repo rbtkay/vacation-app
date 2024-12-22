@@ -5,6 +5,7 @@ from datetime import timedelta
 from app.repository.employee import EmployeeRepository
 from app.repository.vacation import VacationRepository
 
+from tests.factories.employee import EmployeeFactory
 
 class TestEmployeeRepository:
     def setup_method(self):
@@ -13,11 +14,7 @@ class TestEmployeeRepository:
         self.last_name = 'khayat'
 
     def test_create_employee(self, session):
-        new_employee = EmployeeRepository.create(
-            session,
-            first_name=self.first_name,
-            last_name=self.last_name,
-        )
+        new_employee = EmployeeFactory(session).create()
 
         employee = EmployeeRepository.get_by_id(session, new_employee.id)
         
@@ -26,13 +23,11 @@ class TestEmployeeRepository:
         assert employee.last_name == new_employee.last_name
     
     def test_get_employee_in_vacation_nominal(self, session):
-        employee_1 = EmployeeRepository.create(
-            session,
+        employee_1 = EmployeeFactory(session).create(
             first_name="john",
             last_name="doe",
         )
-        employee_2 = EmployeeRepository.create(
-            session,
+        employee_2 = EmployeeFactory(session).create(
             first_name="jane",
             last_name="doe",
         )
