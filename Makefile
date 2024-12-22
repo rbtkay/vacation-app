@@ -34,3 +34,6 @@ migrate-db:
 .PHONY: autogenerate-migration
 autogenerate-migration:
 	$(CONTAINER_EXECUTOR) alembic revision --autogenerate -m $(revision_message)
+
+.PHONY: run
+run: up migrate-db
