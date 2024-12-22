@@ -17,12 +17,14 @@ from app.schema import EmployeeBase
 from app.schema import EmployeeGetSchema
 from app.schema import VacationBase
 
+from datetime import date
+
 router = APIRouter()
 
 
 @router.get("/off/{requested_date}", response_model=Optional[list[EmployeeGetSchema]])
 def get_employees_in_vacation(
-    requested_date: str,
+    requested_date: date,
     session: Session = Depends(get_db),
     first_name: str = Query(None, min_length=3, description="Filter employees by first name"),
     last_name: str = Query(None, min_length=3, description="Filter employees by last name"),

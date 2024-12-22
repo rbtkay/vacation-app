@@ -1,7 +1,7 @@
 import uuid
 from tests.factories import VacationFactory
-
 from datetime import date
+from datetime import timedelta
 
 
 class TestVacationGetEndpoint:
@@ -23,7 +23,8 @@ class TestVacationPostEndpoints:
         payload = {
             "start_date": str(date(2000, 1, 1)),
             "end_date": str(date(2000, 1, 5)),
-            "employee_id": str(vacation.employee.id)
+            "employee_id": str(vacation.employee.id),
+            "vacation_type": "paid leave",
         }
 
         response = client.post(f"/vacation", json=payload)
@@ -35,23 +36,56 @@ class TestVacationPostEndpoints:
         payload = {
             "start_date": str(date(2000, 1, 1)),
             "end_date": str(date(2000, 1, 5)),
-            "employee_id": str(uuid.uuid4())
+            "employee_id": str(uuid.uuid4()),
+            "vacation_type": "paid leave",
         }
 
         response = client.post(f"/vacation", json=payload)
         assert response.status_code == 404
     
-    def test_post_raises_422_id_dates_are_wrong(self, client, session):
-        vacation = VacationFactory(session).create(employee=None)
+    def test_post_raises_400_if_dates_are_wrong(self, client, session):
+        vacation = VacationFactory(session).create()
 
         payload = {
             "start_date": str(date(2000, 1, 5)),
             "end_date": str(date(2000, 1, 1)),
+            "employee_id": str(vacation.employee_id),
+            "vacation_type": "paid leave",
+        }
+
+        response = client.post(f"/vacation", json=payload)
+        assert response.status_code == 422
+    
+    def test_post_raises_422_if_type_is_wrong(self, client, session):
+        vacation = VacationFactory(session).create(employee=None)
+
+        payload = {
+            "start_date": str(date(2000, 1, 1)),
+            "end_date": str(date(2000, 1, 5)),
             "employee_id": str(vacation.employee_id)
         }
 
         response = client.post(f"/vacation", json=payload)
         assert response.status_code == 422
+    
+    def test_post_raises_400_if_overlapping_of_other_type(self, client, session):
+        start_date = date(1900, 1, 1)
+        end_date = date(1900, 1, 10)
+        vacation_existing = VacationFactory(session).create(
+            start_date=start_date,
+            end_date=end_date,
+            vacation_type='paid leave',
+        )
+
+        payload = {
+            "start_date": str(start_date - timedelta(days=2)),
+            "end_date": str(end_date - timedelta(days=2)),
+            "employee_id": str(vacation_existing.employee_id),
+            "vacation_type": 'unpaid leave',
+        }
+
+        response = client.post(f"/vacation", json=payload)
+        assert response.status_code == 400
     
 class TestVacationPatchEndpoints:
     def test_patch_nominal(self, client, session):
@@ -63,6 +97,7 @@ class TestVacationPatchEndpoints:
         payload = {
             "start_date": new_start_date,
             "end_date": new_end_date,
+            "vacation_type": "paid leave",
         }
 
         response = client.patch(f"/vacation/{vacation.id}", json=payload)
@@ -80,12 +115,13 @@ class TestVacationPatchEndpoints:
         payload = {
             "start_date": new_start_date,
             "end_date": new_end_date,
+            "vacation_type": "paid leave",
         }
 
         response = client.patch(f"/vacation/{uuid.uuid4()}", json=payload)
         assert response.status_code == 404
     
-    def test_patch_raises_422_id_dates_are_wrong(self, client, session):
+    def test_patch_raises_422_if_dates_are_wrong(self, client, session):
         vacation = VacationFactory(session).create(employee=None)
 
         payload = {

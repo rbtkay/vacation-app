@@ -3,6 +3,7 @@ from datetime import date
 import uuid
 import factory
 from app.model import VacationModel
+from app.enum.vacation import VacationTypeEnum
 from tests.factories import EmployeeFactory
 
 
@@ -17,5 +18,6 @@ def VacationFactory(session):
         start_date = factory.LazyFunction(lambda: date.today())
         end_date = factory.LazyAttribute(lambda o: o.start_date + timedelta(days=10))
         employee = EmployeeFactory(session).create()
+        vacation_type = VacationTypeEnum.PAID_LEAVE
     
     return _VacationFactory

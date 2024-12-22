@@ -5,7 +5,8 @@ from datetime import timedelta
 from app.repository.employee import EmployeeRepository
 from app.repository.vacation import VacationRepository
 
-from tests.factories.employee import EmployeeFactory
+from tests.factories import EmployeeFactory
+from tests.factories import VacationFactory
 
 class TestEmployeeRepository:
     def setup_method(self):
@@ -34,19 +35,36 @@ class TestEmployeeRepository:
         
         start_date_1 = date(2000, 1, 1)
         end_date_1 = start_date_1 + timedelta(days=10)
-        VacationRepository.create(session, start_date_1, end_date_1, employee_1)
+        VacationFactory(session).create(
+            start_date=start_date_1,
+            end_date=end_date_1,
+            employee=employee_1,
+
+        )
         
         start_date_2 = date(2000, 1, 5)
         end_date_2 = start_date_2 + timedelta(days=10)
-        VacationRepository.create(session, start_date_2, end_date_2, employee_2)
+        VacationFactory(session).create(
+            start_date=start_date_2,
+            end_date=end_date_2,
+            employee=employee_2
+        )
 
         start_date_3 = date(2000, 5, 1)
         end_date_3 = start_date_3 + timedelta(days=10)
-        VacationRepository.create(session, start_date_3, end_date_3, employee_1)
+        VacationFactory(session).create(
+            start_date=start_date_3,
+            end_date=end_date_3,
+            employee=employee_1
+        )
         
         start_date_4 = date(2000, 3, 1)
         end_date_4 = start_date_4 + timedelta(days=10)
-        VacationRepository.create(session, start_date_4, end_date_4, employee_2)
+        VacationFactory(session).create(
+            start_date=start_date_4,
+            end_date=end_date_4,
+            employee=employee_2
+        )
         
         date_requested = date(2000, 1, 8)
         employees_in_vacation = EmployeeRepository.get_in_vacation(
